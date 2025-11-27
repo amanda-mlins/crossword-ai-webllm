@@ -1,0 +1,19 @@
+{
+  "name": "crossword-ai-webllm",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "deploy": "gh-pages -d ai-crossword-frontend/dist"
+  },
+  "dependencies": {
+    "vue": "^3.5.22",
+    "axios": "^1.13.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.1",
+    "vite": "^7.1.11",
+    "gh-pages": "^5.0.0"
+  }
+}
