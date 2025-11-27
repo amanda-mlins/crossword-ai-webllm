@@ -13,8 +13,8 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-      - run: npm install
-      - run: npm run build
+      - run: cd ai-crossword-frontend && npm install
+      - run: cd ai-crossword-frontend && npm run build
       - uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: gh-pages
