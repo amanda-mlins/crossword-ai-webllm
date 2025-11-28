@@ -1,10 +1,5 @@
-export function useWebLLM() {
+export function useWebLLM(initProgressCallback) {
   let engine = null;
-
-  // Initialize with a progress callback
-  const initProgressCallback = (progress) => {
-     console.log("Model loading progress:", progress);
-  };
 
   async function initModel() {
       if (!window.webllm) {

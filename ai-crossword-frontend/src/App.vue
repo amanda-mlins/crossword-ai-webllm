@@ -16,8 +16,6 @@
 
 <script setup>
 import { ref } from "vue";
-import { useWebLLM } from "./composables/useWebLLM";
-
 import CrosswordGrid from "./components/CrosswordGrid.vue";
 import ClueGrid from "./components/Clues.vue";
 import WordInput from "./components/WordInput.vue";
