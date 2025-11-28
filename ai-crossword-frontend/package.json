@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "deploy": "gh-pages -d ai-crossword-frontend/dist"
+    "deploy": "gh-pages -d ai-crossword-frontend/dist",
+    "test": "vitest",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "vue": "^3.5.22",
@@ -14,6 +16,8 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.1",
     "vite": "^7.1.11",
-    "gh-pages": "^5.0.0"
+    "gh-pages": "^5.0.0",
+    "vitest": "^1.2.0",
+    "jsdom": "^23.0.0"
   }
 }

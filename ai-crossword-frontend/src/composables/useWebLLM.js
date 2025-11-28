@@ -3,6 +3,16 @@ export function useWebLLM() {
 
   async function initModel() {
     if (!chat) {
+      if (!window.webllm) {
+        throw new Error(
+          'WebLLM is not loaded. Make sure the WebLLM script is included in your HTML.'
+        );
+      }
+      if (typeof window.webllm.CreateWebLLMChat !== 'function') {
+        throw new Error(
+          'window.webllm.CreateWebLLMChat is not a function. Check that WebLLM is properly initialized.'
+        );
+      }
       chat = await window.webllm.CreateWebLLMChat({
         model: "Llama-3.2-1B-Instruct-q4f16_1"
       });

@@ -4,10 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Crossword WebLLM</title>
-    <!-- Load WebLLM -->
+    <!-- Load WebLLM first -->
     <script type="module">
       import * as webllm from "https://esm.sh/@mlc-ai/web-llm";
       window.webllm = webllm;
+      console.log('WebLLM loaded:', typeof window.webllm.CreateWebLLMChat);
     </script>
   </head>
   <body class="antialiased bg-gray-50">
