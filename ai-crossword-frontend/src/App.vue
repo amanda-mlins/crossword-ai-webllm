@@ -1,26 +1,15 @@
 <template>
   <div class="p-6 bg-gray-50 min-h-screen text-gray-800">
     <h1 class="text-2xl font-bold mb-4 text-center">
-      🧩 AI Crossword WebLLM
+      🧩 AI Crossword Puzzle Maker
     </h1>
-
-    <div class="p-4 bg-white rounded-xl shadow-md mb-4">
-      <input v-model="theme" placeholder="Enter theme" class="w-full border p-2 rounded mb-2" />
-      <button @click="generatePuzzle" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" :disabled="loading">
-        {{ loading ? "Generating..." : "Generate Crossword" }}
-      </button>
+    <WordInput @generated="handleResult" />
+    <div class="flex justify-center mt-6">
+      <CrosswordGrid v-if="grid" :grid="grid" :clues="clues" :highlightedClueKey="highlightedClueKey" :revealedClues="revealedClues" />
     </div>
-
-    <div class="flex justify-center mt-6" v-if="grid">
-      <table class="border-collapse border border-gray-400">
-        <tbody>
-          <tr v-for="(row,r) in grid" :key="r">
-            <td v-for="(cell,c) in row" :key="c" class="w-8 h-8 text-center border border-gray-400 font-mono" :class="cell ? 'bg-yellow-50' : 'bg-gray-200'">
-              {{ cell || "" }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="flex justify-center mt-6">
+      <ClueGrid v-if="clues" :clues="clues" @hoverClue="highlightedClueKey = $event"
+                                                @leaveClue="highlightedClueKey = null" @revealClue="revealClue"  />
     </div>
   </div>
 </template>
@@ -28,28 +17,50 @@
 <script setup>
 import { ref } from "vue";
 import { useWebLLM } from "./composables/useWebLLM";
-import { createCrossword } from "./crossword_generator.js";
 
-const theme = ref("");
+import CrosswordGrid from "./components/CrosswordGrid.vue";
+import ClueGrid from "./components/Clues.vue";
+import WordInput from "./components/WordInput.vue";
+
 const grid = ref(null);
-const placedWords = ref([]);
-const loading = ref(false);
+const clues = ref(null);
+const highlightedClueKey = ref(null);
+const revealedClues = ref(new Set());
 
-const { generateWords } = useWebLLM();
-
-async function generatePuzzle() {
-  if (!theme.value) return alert("Please enter a theme");
-  loading.value = true;
-  try {
-    const words = await generateWords(theme.value);
-    const { grid: g, placed } = createCrossword(words, 15);
-    grid.value = g;
-    placedWords.value = placed;
-  } catch (err) {
-    console.error(err);
-    alert("Failed to generate crossword");
-  } finally {
-    loading.value = false;
+function revealClue(key) {
+  console.log("Toggling reveal for clue key:", key);
+  if(!revealedClues.value.has(key)){
+    revealedClues.value.add(key);
+  } else {
+    revealedClues.value.delete(key);
   }
+  console.log("Revealed clues set:", revealedClues.value);
 }
+
+function gridState(item, index) {
+  console.log(item + "," + index)
+  const elem = { value: item, discovered: false }
+}
+
+function handleResult(result) {
+
+  const original = result.grid.map(row =>
+                                row.map(str => ({
+                                  value: str,
+                                  status: str === "" ? "empty" : "hidden"
+                                })))
+
+  grid.value = original;
+  
+  let clueDict = {};
+  for (const clue of result.clues) {
+    clueDict[clue.word] = clue;
+  }
+  clues.value = clueDict;
+  console.log("Clues set in App.vue:", clues.value);
+  revealedClues.value = new Set();
+}
+
 </script>
+
+
