@@ -1,32 +1,37 @@
 export function useWebLLM() {
-  let chat = null;
+  let engine = null;
+
+  // Initialize with a progress callback
+  const initProgressCallback = (progress) => {
+     console.log("Model loading progress:", progress);
+  };
 
   async function initModel() {
-    if (!chat) {
       if (!window.webllm) {
         throw new Error(
           'WebLLM is not loaded. Make sure the WebLLM script is included in your HTML.'
         );
       }
-      if (typeof window.webllm.CreateWebLLMChat !== 'function') {
-        throw new Error(
-          'window.webllm.CreateWebLLMChat is not a function. Check that WebLLM is properly initialized.'
-        );
+      if (!engine) {
+        engine = await window.webllm.CreateMLCEngine("Llama-3-8B-Instruct-q4f32_1-MLC-1k", { initProgressCallback });
       }
-      chat = await window.webllm.CreateWebLLMChat({
-        model: "Llama-3.2-1B-Instruct-q4f16_1"
-      });
     }
-  }
 
   async function generateWords(theme, numWords = 12) {
     await initModel();
     const prompt = `
-Generate ${numWords} crossword-friendly words related to the theme "${theme}".
-Return only the words, one per line.
+Generate ${numWords} crossword-friendly words related to the theme "${theme}", the words should be in Dutch, return only the words, one by line, no extra text or numbers.
 `;
-    const text = await chat.generate(prompt);
-    return text
+    const messages = [
+      { role: "system", content: "You are a helpful assistant that generates crossword words for website, you act as an API that returns just the words, one by line" },
+      { role: "user", content: prompt },
+    ];
+
+    const text = await engine.chat.completions.create({ messages });
+    const reply = text.choices[0].message.content
+    console.log(text.choices[0].message);
+    console.log(text.usage);
+    return reply
       .split("\n")
       .map(w => w.trim())
       .filter(w => w.length > 0);

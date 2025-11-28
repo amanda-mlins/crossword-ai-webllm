@@ -6,9 +6,9 @@
     <title>AI Crossword WebLLM</title>
     <!-- Load WebLLM first -->
     <script type="module">
-      import * as webllm from "@mlc-ai/web-llm";
+      import * as webllm from "https://esm.run/@mlc-ai/web-llm";
       window.webllm = webllm;
-      console.log('WebLLM loaded:', typeof window.webllm.CreateWebLLMChat);
+      console.log('WebLLM loaded:', typeof window.webllm);
     </script>
   </head>
   <body class="antialiased bg-gray-50">
