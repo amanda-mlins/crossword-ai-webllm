@@ -14,7 +14,7 @@
       class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
       :disabled="loading"
     >
-      {{ loading ? "Generating..." : "Generate Crossword" }}
+      {{ modelLoading || loading ? "Loading..." : "Generate Crossword" }}
     </button>
     <p id="loading_msg"></p>
   </div>
@@ -28,12 +28,22 @@ import { useWebLLM } from "../composables/useWebLLM.js";
 const theme = ref("");
 const loading = ref(false);
 const initProgressCallback = (report) => {
-  console.log(report);
+    const loadingMsg = document.getElementById("loading_msg");
+    loadingMsg.textContent = report.progress * 100 + "% model loading...";
+    if (report.progress && report.progress == 1) {
+      loadingMsg.textContent = "Model loaded successfully.";
+      modelLoading.value = false;
+    }
+};
+
+const crosswordCallback = (report) => {
     const loadingMsg = document.getElementById("loading_msg");
     loadingMsg.textContent = report.text;
 };
-const { generateWords } = useWebLLM(initProgressCallback);
+const modelLoading = ref(true);
+const { generateWords, initModel } = useWebLLM(initProgressCallback);
 const emit = defineEmits(["generated"]);
+initModel();
 
 
 
@@ -43,6 +53,7 @@ async function generate() {
   let resultArray;
   let result;
   try {
+    crosswordCallback({ text: "Generating words and clues..." });
     resultArray = await generateWords(theme.value);
     const words = resultArray.map(obj => obj.word);
     const clues = {};
@@ -51,7 +62,7 @@ async function generate() {
     });
     console.log("Generated words:", words);
     console.log("Generated clues:", clues);
-    initProgressCallback({ text: "Creating crossword layout..." });
+    crosswordCallback({ text: "Creating crossword layout..." });
     result = createCrossword(words, 15);
     const cluePositions = [];
     result.positions.forEach(position => {
@@ -70,8 +81,8 @@ async function generate() {
     });
     result.clues = cluePositions;
     console.log("Crossword result:", result);
+    crosswordCallback({ text: "" });
     emit("generated", result);
-    initProgressCallback({ text: "" });
   } catch (err) {
     console.error(err);
     alert("Failed to generate crossword");
