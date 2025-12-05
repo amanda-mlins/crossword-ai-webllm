@@ -13,7 +13,7 @@
       </div>
       <div class="flex justify-center w-1/2 flex-col items-center">
         <h1 v-if="clues" class="text-2xl font-bold mb-4 text-center"> Clues </h1>
-        <p class="text-orange-500">Hover to see position, click to reveal word</p>
+        <p v-if="clues" class="text-orange-500">Hover to see position, click to reveal word</p>
         <ClueGrid v-if="clues" :clues="clues" :highlightedPosition="highlightedPosition"
           :highlightedCluesWord="highlightedCluesWord" @hoverClue="highlightedClueKey = $event"
           @leaveClue="highlightedClueKey = null" @revealClue="revealClue" />

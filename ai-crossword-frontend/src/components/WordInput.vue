@@ -5,15 +5,24 @@
       <label class="block text-sm font-medium">Give me a theme</label>
       <input
         v-model="theme"
+        :class="['w-full border p-2 rounded', validationErrors.length ? 'border-red-500' : '']"
         placeholder="e.g., Summer, vacations, Christmas"
-        class="w-full border p-2 rounded"
+        :aria-invalid="validationErrors.length > 0"
+        aria-describedby="theme-errors"
       />
+      <div id="theme-errors" class="mt-2 text-sm text-red-600" aria-live="polite">
+        <ul v-if="validationErrors.length">
+          <li v-for="(err, idx) in validationErrors" :key="idx">{{ err }}</li>
+        </ul>
+      </div>
     </div>
     <button
       @click="generate"
-      :class="['bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700',
-                 modelLoading || loading ? 'opacity-50 cursor-not-allowed' : '']"
-      :disabled="modelLoading || loading"
+      :class="[
+        'bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700',
+        (modelLoading || loading || !isValid ) ? 'opacity-50 cursor-not-allowed' : ''
+      ]"
+      :disabled="modelLoading || loading || !isValid"
     >
       {{ modelLoading || loading ? "Loading..." : "Generate Crossword" }}
     </button>
@@ -22,12 +31,38 @@
 </template>
 
 <script setup>
-import { ref, defineEmits } from "vue";
+import { ref, defineEmits, computed, watch } from "vue";
 import { createCrossword } from "./crossword_solver.js";
 import { useWebLLM } from "../composables/useWebLLM.js";
 
 const theme = ref("");
 const loading = ref(false);
+const validationErrors = ref([]);
+
+const isValid = computed(() => validationErrors.value.length === 0 && theme.value.trim().length > 0);
+
+function validateTheme() {
+  const val = theme.value ? theme.value.trim() : "";
+  const errors = [];
+  if (!val) {
+    errors.push("Theme is required.");
+  }
+  if (val && val.length < 3) {
+    errors.push("Theme must be at least 3 characters.");
+  }
+  if (val && val.length > 100) {
+    errors.push("Theme must be 100 characters or fewer.");
+  }
+  // Disallow weird control characters
+  if (val && /[\x00-\x1F]/.test(val)) {
+    errors.push("Theme contains invalid characters.");
+  }
+  validationErrors.value = errors;
+}
+
+watch(theme, () => {
+  validateTheme();
+});
 const initProgressCallback = (report) => {
     const loadingMsg = document.getElementById("loading_msg");
     const progress = (report.progress || 0) * 100;
@@ -48,7 +83,8 @@ const emit = defineEmits(["generated"]);
 initModel();
 
 async function generate() {
-  if (!theme.value) return alert("Please enter a theme");
+  validateTheme();
+  if (!isValid.value) return;
   loading.value = true;
   let resultArray;
   let result;
