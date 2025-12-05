@@ -24,15 +24,15 @@
 
           <!-- Actual crossword cells -->
 
-          <td
+          <td 
             v-for="(cell, c) in row"
             :key="c"
             class="w-8 h-8 text-center border border-gray-400 font-mono"
             :class="[
                           cell.value ? 'bg-yellow-50' : 'bg-gray-200',
-                          isHighlighted(r, c) ? 'outline outline-2 outline-blue-500' : ''
+                          isHighlighted(r, c) || isHovered(r,c) ? 'outline outline-2 outline-blue-500' : ''
                         ]"
-          >
+          @mouseenter="$emit('hoverWord', { row: r, column: c} )" @mouseleave="$emit('leaveWord')" >
             {{ showLetter(r, c) }}
           </td>
         </tr>
@@ -47,8 +47,32 @@ const props = defineProps({
   grid: Array,
   highlightedClueKey: String,
   revealedClues: Object, // a Set of revealed clue keys
-  clues: Object
+  clues: Object,
+  highlightedCluesWord : Array
 });
+
+function isHovered(r,c) {
+  if(!props.highlightedCluesWord) return false;
+  for(const word of props.highlightedCluesWord){
+    const clue = props.clues[word];
+    if(clue.position === "H"){
+      const row = clue.start;
+      const startCol = clue.end;
+      const endCol = clue.end + clue.word.length - 1;
+      if(r === row && c >= startCol && c <= endCol){
+        return true;
+      }
+    } else {
+      const col = clue.end;
+      const startRow = clue.start;
+      const endRow = clue.start + clue.word.length - 1;
+      if(c === col && r >= startRow && r <= endRow){
+        return true;
+      }
+    }
+  }
+  return false;
+}
 
 // Function to check whether a cell should be highlighted
 function isHighlighted(r, c) {

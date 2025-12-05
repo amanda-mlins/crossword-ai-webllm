@@ -7,11 +7,10 @@ export function useWebLLM(initProgressCallback) {
           'WebLLM is not loaded. Make sure the WebLLM script is included in your HTML.'
         );
       }
-      if (!window.engine) {
+      if (!engine) {
         engine = await window.webllm.CreateMLCEngine("Llama-3-8B-Instruct-q4f32_1-MLC-1k", { initProgressCallback });
         window.engine = engine; // Expose engine for debugging
       } else{
-        console.log("WebLLM model already initialized.");
         initProgressCallback({ text: "WebLLM model already initialized", progress: 1 });
       }
     }

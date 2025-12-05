@@ -12,7 +12,7 @@
     <button
       @click="generate"
       class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-      :disabled="loading"
+      :disabled="modelLoading || loading"
     >
       {{ modelLoading || loading ? "Loading..." : "Generate Crossword" }}
     </button>
@@ -29,7 +29,7 @@ const theme = ref("");
 const loading = ref(false);
 const initProgressCallback = (report) => {
     const loadingMsg = document.getElementById("loading_msg");
-    loadingMsg.textContent = report.progress * 100 + "% model loading...";
+    loadingMsg.textContent = report.progress * 100 + "% model loading... (First load may take a while, after refresh it's usually much faster)";
     if (report.progress && report.progress == 1) {
       loadingMsg.textContent = "Model loaded successfully.";
       modelLoading.value = false;
