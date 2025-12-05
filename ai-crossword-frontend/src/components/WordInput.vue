@@ -11,7 +11,8 @@
     </div>
     <button
       @click="generate"
-      class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+      :class="['bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700',
+                 modelLoading || loading ? 'opacity-50 cursor-not-allowed' : '']"
       :disabled="modelLoading || loading"
     >
       {{ modelLoading || loading ? "Loading..." : "Generate Crossword" }}
@@ -29,7 +30,8 @@ const theme = ref("");
 const loading = ref(false);
 const initProgressCallback = (report) => {
     const loadingMsg = document.getElementById("loading_msg");
-    loadingMsg.textContent = report.progress * 100 + "% model loading... (First load may take a while, after refresh it's usually much faster)";
+    const progress = (report.progress || 0) * 100;
+    loadingMsg.textContent = progress.toFixed() + "% model loading... (First load may take a while, after refresh it's usually much faster)";
     if (report.progress && report.progress == 1) {
       loadingMsg.textContent = "Model loaded successfully.";
       modelLoading.value = false;
@@ -44,8 +46,6 @@ const modelLoading = ref(true);
 const { generateWords, initModel } = useWebLLM(initProgressCallback);
 const emit = defineEmits(["generated"]);
 initModel();
-
-
 
 async function generate() {
   if (!theme.value) return alert("Please enter a theme");
@@ -80,6 +80,7 @@ async function generate() {
       });
     });
     result.clues = cluePositions;
+    result.theme = theme.value;
     console.log("Crossword result:", result);
     crosswordCallback({ text: "" });
     emit("generated", result);

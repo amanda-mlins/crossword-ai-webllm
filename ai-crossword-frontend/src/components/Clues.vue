@@ -1,15 +1,26 @@
 <template>
-  <div v-if="clues" class="inline-block border border-gray-400">
+    <div v-if="clues" >
     <table class="border-collapse">
+      <thead>
+      <tr>
+        <th class="justify-center w-1/6 border border-gray-300 bg-orange-200 text-rose-500"> Orientation </th>
+        <th class="justify-center w-1/6 border border-gray-300 bg-orange-200 text-rose-500"> Column </th>
+        <th class="justify-center w-1/6 border border-gray-300 bg-orange-200 text-rose-500"> Row </th>
+        <th class="justify-center w-1/2 border border-gray-300 bg-orange-200 text-rose-500"> Clue </th>
+      </tr>
+      </thead>
       <tbody>
         <tr v-for="(item) in clues" @mouseenter="$emit('hoverClue', item.word)" @mouseleave="$emit('leaveClue')" @click="$emit('revealClue', item.word)" 
         :class="[
-          'hover:bg-gray-100 cursor-pointer',
+          'bg-yellow-100 border border-gray-400',
+          'hover:bg-orange-200 cursor-pointer',
           isHighlighted(item) ? 'outline outline-2 outline-blue-500' : ''
         ]" 
         >
-            <td> {{ item.position}} -> ({{ item.start + 1 }}, {{ item.end + 1}})</td>
-            <td> {{ item.clue }} </td>
+            <td class="justify-center w-1/6 border border-gray-300"> {{ item.position}} </td>
+            <td class="justify-center w-1/6 border border-gray-300 "> {{ item.end + 1}}</td>
+            <td class="justify-center w-1/6 border border-gray-300 "> {{ item.start + 1 }} </td>
+            <td class="justify-center w-1/2 border border-gray-300"> {{ item.clue }} </td>
         </tr>
       </tbody>
     </table>
